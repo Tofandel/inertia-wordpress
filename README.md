@@ -83,7 +83,9 @@ By default the `bb_inject_inertia()` function returns `<div id="app" data-page="
 
 use BoxyBird\Inertia\Inertia;
 
-return Inertia::render('Index', [
+global $wp_query;
+
+Inertia::render('Index', [
     'posts' => $wp_query->posts,
 ]);
 ```
@@ -99,15 +101,16 @@ This may look busy, however it can be thought of as a "Controller". It gives you
 
 use BoxyBird\Inertia\Inertia;
 
-// Build $posts array
+global $wp_query;
+
 $posts = array_map(function ($post) {
-    return [
-        'id'      => $post->ID,
-        'title'   => get_the_title($post->ID),
-        'link'    => get_the_permalink($post->ID),
-        'image'   => get_the_post_thumbnail_url($post->ID),
-        'content' => apply_filters('the_content', get_the_content(null, false, $post->ID));
-    ];
+  return [
+    'id'      => $post->ID,
+    'title'   => get_the_title($post->ID),
+    'link'    => get_the_permalink($post->ID),
+    'image'   => get_the_post_thumbnail_url($post->ID),
+    'content' => apply_filters('the_content', get_the_content(null, false, $post->ID)),
+  ];
 }, $wp_query->posts);
 
 // Build $pagination array
@@ -116,17 +119,15 @@ $prev_page    = $current_page > 1 ? $current_page - 1 : false;
 $next_page    = $current_page + 1;
 
 $pagination = [
-    'prev_page'    => $prev_page,
-    'next_page'    => $next_page,
-    'current_page' => $current_page,
-    'total_pages'  => $wp_query->max_num_pages,
-    'total_posts'  => (int) $wp_query->found_posts,
+  'prev_page'    => $prev_page,
+  'next_page'    => $next_page,
+  'current_page' => $current_page,
+  'total_pages'  => $wp_query->max_num_pages,
+  'total_posts'  => (int) $wp_query->found_posts,
 ];
 
-// Return Inertia view with data
-return Inertia::render('Posts/Index', [
-    'posts'      => $posts,
-    'pagination' => $pagination,
+Inertia::render('Index', [
+  'posts' => $wp_query->posts,
 ]);
 ```
 
